@@ -1,49 +1,33 @@
-# render.yaml
 services:
   - type: web
     name: n8n
-    # Removed dockerfilePath: Dockerfile
-    image: docker.n8n.io/n8nio/n8n:latest # Specify the official n8n Docker image
+    # Specify the official n8n Docker Image
+    image: docker.n8n.io/n8nio/n8n:latest
     autoDeploy: false
     plan: free
     envVars:
       - key: N8N_HOST
-        value: ${N8N_HOST}
-      - key: WEBHOOK_URL
-        value: ${WEBHOOK_URL}
+        # This will be the external URL provided by Render/Ngrok
+        value: ${N8N_HOST} # This assumes N8N_HOST will be set by Render or Ngrok
+      - key: N8N_PROTOCOL
+        value: "http"
+      - key: N8N_TUNNEL_URL
+        value: "{{ .Env.N8N_TUNNEL_URL }}" # This gets the Ngrok URL from the ngrok-tunnel service
       - key: N8N_PUSH_WEBHOOK_PORT
         value: 5555
       - key: N8N_PUSH_WEBHOOK_BASE_URL
-        value: http://localhost:5555
-      - key: GENERIC_TIMEZONE
-        value: "Africa/Addis_Ababa"
-      - key: TZ
-        value: "Africa/Addis_Ababa"
-      - key: N8N_EMAIL_MODE
-        value: "smtp"
-      - key: N8N_SMTP_HOST
-        value: "smtp.gmail.com"
-      - key: N8N_SMTP_PORT
-        value: "587"
-      - key: N8N_SMTP_USER
-        value: "themindsetformula@gmail.com" # Replace with your actual email
-      - key: N8N_SMTP_PASS
-        value: "Balajam@1993" # Replace with your actual password or App Password
-      - key: N8N_SMTP_SENDER
-        value: "youremail@gmail.com"
-      - key: N8N_PUSH_WEBHOOK_ENABLED
-        value: "true"
+        value: http://n8n:5555 # Internal communication: n8n service reaching itself
 
   - type: web
     name: ngrok-tunnel
-    # Removed dockerfilePath: Dockerfile
-    image: ngrok/ngrok:latest # Specify a suitable Ngrok Docker image
+    # Specify the official Ngrok Docker Image (or a compatible one)
+    image: ngrok/ngrok:latest # Assuming this is the image your repo intends to use
     autoDeploy: false
     plan: free
     envVars:
-      - key: NGROK_AUTHTOKEN
-        value: bot_2yTy6gWTLrWiXDbkckgnKbUUr5f # Replace with your Ngrok auth token
-      - key: NGROK_SERVER
-        value: "http://n8n:5555" # Internal Render service communication
       - key: N8N_TUNNEL_URL
-        value: ${N8N_TUNNEL_URL} # Render will populate this
+        value: "{{ .Env.N8N_TUNNEL_URL }}" # This will be the output URL of ngrok
+      - key: NGROK_AUTHTOKEN
+        sync: true # This will pull the token from your Render environment secrets
+    # Ngrok usually just needs the tunnel URL and auth token to start
+    # No need for dockerfile/build if pulling an image
