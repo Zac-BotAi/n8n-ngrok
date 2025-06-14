@@ -1,6 +1,7 @@
 services:
   - type: web
     name: ngrok-tunnel
+    runtime: image
     image: ngrok/ngrok:latest
     plan: free
     envVars:
@@ -10,6 +11,7 @@ services:
 
   - type: web
     name: n8n
+    runtime: image
     image: docker.io/n8nio/n8n:latest
     plan: free
     envVars:
@@ -29,24 +31,6 @@ services:
         value: "5678"
       - key: N8N_ENCRYPTION_KEY
         generateValue: true
-      - key: DB_TYPE
-        value: postgresdb
-      - key: DB_POSTGRESDB_DATABASE
-        fromDatabase:
-          name: n8n-db
-          property: database
-      - key: DB_POSTGRESDB_HOST
-        fromDatabase:
-          name: n8n-db
-          property: host
-      - key: DB_POSTGRESDB_USER
-        fromDatabase:
-          name: n8n-db
-          property: user
-      - key: DB_POSTGRESDB_PASSWORD
-        fromDatabase:
-          name: n8n-db
-          property: password
     healthCheckPath: /healthz
 
 databases:
