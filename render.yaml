@@ -1,33 +1,24 @@
-services:
-  - type: web
-    name: ngrok-tunnel
-    runtime: image
-    image: ngrok:latest
-    plan: free
-    envVars:
-      - key: NGROK_AUTHTOKEN
-        sync: true  # Make sure to set this in the Render dashboard
-    startCommand: ngrok http --log=stdout n8n:5678
-  - type: web
-    name: n8n
-    runtime: image
-    image: n8nio/n8n:latest
-    plan: free
-    envVars:
-      - key: N8N_PROTOCOL
-        value: "https"
-      - key: N8N_HOST
-        fromService:
-          type: web
-          name: ngrok-tunnel
-          envVarKey: RENDER_EXTERNAL_URL
-      - key: WEBHOOK_TUNNEL_URL
-        fromService:
-          type: web
-          name: ngrok-tunnel
-          envVarKey: RENDER_EXTERNAL_URL
-      - key: N8N_PORT
-        value: "5678"
-      - key: N8N_ENCRYPTION_KEY
-        generateValue: true
-    healthCheckPath: /healthz
+June 15, 2025 at 1:09 AM
+failed
+ba85a81
+Create package.json
+
+Rollback
+Exited with status 1 while building your code.
+Read our docs for common ways to troubleshoot your deploy.
+
+All logs
+Search
+Search
+
+Live tail
+GMT+3
+
+Menu
+==> Cloning from https://github.com/Zac-BotAi/n8n-ngrok
+==> Checking out commit ba85a81c412ed3a6564946ea033b75439131e7e5 in branch feature/render-compatibility-and-optional-ngrok
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 2B done
+#1 DONE 0.1s
+error: failed to solve: failed to read dockerfile: open Dockerfile: no such file or directory
+error: exit status 1
