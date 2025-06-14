@@ -1,49 +1,54 @@
 services:
   - type: web
-    name: n8n
-    # Specify the official n8n Docker Image
-    image: docker.n8n.io/n8nio/n8n:latest
-    autoDeploy: false
+    name: ngrok-tunnel
+    image: ngrok/ngrok:latest
     plan: free
     envVars:
-      - key: N8N_HOST
-        # This will be the external URL provided by Render/Ngrok.
-        # It's typically populated by Render automatically or via Ngrok's tunnel URL.
-        # Ensure this matches the domain you want n8n to use externally.
-        value: ${N8N_HOST}
-      - key: N8N_PROTOCOL
-        value: "http"
-      - key: N8N_TUNNEL_URL
-        # This gets the Ngrok URL from the ngrok-tunnel service.
-        # This is critical for n8n to know its public-facing URL via Ngrok.
-        value: "{{ .Env.N8N_TUNNEL_URL }}"
-      - key: N8N_PUSH_WEBHOOK_PORT
-        # This defines the port n8n listens on for webhook pushes.
-        # Default n8n port is usually 5678, ensure it matches your n8n configuration.
-        value: 5555 
-      - key: N8N_PUSH_WEBHOOK_BASE_URL
-        # For internal communication within Render, use the service name.
-        # 'n8n' is the name of your n8n service in this render.yaml.
-        # Ensure '5555' matches the internal port n8n listens on for these webhooks.
-        value: http://n8n:5555 
-    healthCheckPath: /healthz # Good practice to include for robust deployments
+      - key: NGROK_AUTHTOKEN
+        sync: true
+    startCommand: ngrok http --log=stdout n8n:5678
 
   - type: web
-    name: ngrok-tunnel
-    # Specify the official Ngrok Docker Image
-    image: ngrok/ngrok:latest
-    autoDeploy: false
+    name: n8n
+    image: docker.io/n8nio/n8n:latest
     plan: free
     envVars:
-      - key: N8N_TUNNEL_URL
-        # This variable will hold the public Ngrok URL once the tunnel is established.
-        # It needs to be available to the n8n service.
-        value: "{{ .Env.N8N_TUNNEL_URL }}"
-      - key: NGROK_AUTHTOKEN
-        # This token needs to be added as a secret environment variable in Render.
-        # Go to your service settings on Render -> Environment -> Add Secret File/Variable.
-        # The key should be NGROK_AUTHTOKEN and its value should be your actual Ngrok auth token.
-        sync: true 
-    healthCheckPath: /
-    # Ngrok usually just needs the tunnel URL and auth token to start,
-    # and it will tunnel to the n8n service.
+      - key: N8N_PROTOCOL
+        value: "https"
+      - key: N8N_HOST
+        fromService:
+          type: web
+          name: ngrok-tunnel
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: WEBHOOK_TUNNEL_URL
+        fromService:
+          type: web
+          name: ngrok-tunnel
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: N8N_PORT
+        value: "5678"
+      - key: N8N_ENCRYPTION_KEY
+        generateValue: true
+      - key: DB_TYPE
+        value: postgresdb
+      - key: DB_POSTGRESDB_DATABASE
+        fromDatabase:
+          name: n8n-db
+          property: database
+      - key: DB_POSTGRESDB_HOST
+        fromDatabase:
+          name: n8n-db
+          property: host
+      - key: DB_POSTGRESDB_USER
+        fromDatabase:
+          name: n8n-db
+          property: user
+      - key: DB_POSTGRESDB_PASSWORD
+        fromDatabase:
+          name: n8n-db
+          property: password
+    healthCheckPath: /healthz
+
+databases:
+  - name: n8n-db
+    plan: free
