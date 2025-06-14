@@ -2,17 +2,16 @@ services:
   - type: web
     name: ngrok-tunnel
     runtime: image
-    image: ngrok/ngrok:latest
+    image: ngrok:latest # Correct the reference to ngrok image here.
     plan: free
     envVars:
       - key: NGROK_AUTHTOKEN
         sync: true
     startCommand: ngrok http --log=stdout n8n:5678
-
   - type: web
     name: n8n
     runtime: image
-    image: docker.io/n8nio/n8n:latest
+    image: n8nio/n8n:latest # Ensure no unnecessary prefixes like 'docker.io/'
     plan: free
     envVars:
       - key: N8N_PROTOCOL
