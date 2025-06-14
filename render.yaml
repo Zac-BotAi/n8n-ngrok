@@ -1,0 +1,42 @@
+```yaml
+services:
+  - type: web
+    name: n8n
+    env: docker
+    image:
+      url: docker.n8n.io/n8nio/n8n:latest
+    ports:
+      - port: 5678 # n8n's internal port. Render maps its external port (80/443) to this.
+    envVars:
+      - key: TIMEZONE
+        value: America/New_York # TODO: Change to your desired timezone
+      - key: GENERIC_TIMEZONE # n8n often uses this as well
+        value: America/New_York # TODO: Change to your desired timezone
+      # - key: N8N_ENCRYPTION_KEY
+      #   generateValue: true # Recommended: Let Render generate and manage a secure encryption key
+      # - key: WEBHOOK_URL # n8n uses WEBHOOK_URL (previously WEBHOOK_TUNNEL_URL)
+      #   fromService:
+      #     type: web
+      #     name: n8n # This service's name
+      #     property: url
+      # Add any other essential n8n environment variables here.
+      # For example, if you are NOT using SQLite (the default) but an external DB:
+      # - key: DB_TYPE
+      #   value: postgresdb
+      # - key: DB_POSTGRESDB_HOST
+      #   value: your_render_pg_host_or_external_host
+      # - key: DB_POSTGRESDB_PORT
+      #   value: "5432"
+      # - key: DB_POSTGRESDB_DATABASE
+      #   value: your_n8n_database
+      # - key: DB_POSTGRESDB_USER
+      #   value: your_n8n_user
+      # - key: DB_POSTGRESDB_PASSWORD
+      #   sync: false # Set this sensitive value in Render's UI or secret files
+    disk:
+      name: n8n-data # This name will be used for the persistent disk in Render
+      mountPath: /home/node/.n8n
+      sizeGB: 10 # Adjust size as needed. Minimum is 1GB.
+    healthCheckPath: /healthz # n8n's health check endpoint
+    # autoDeploy: true # Optional: Uncomment to enable auto-deploy on git push to the default branch
+```
