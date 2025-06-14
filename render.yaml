@@ -1,31 +1,14 @@
 services:
   - type: web
-    name: ngrok-tunnel
-    runtime: image
-    image: ngrok:latest # Correct the reference to ngrok image here.
-    plan: free
-    envVars:
-      - key: NGROK_AUTHTOKEN
-        sync: true
-    startCommand: ngrok http --log=stdout n8n:5678
-  - type: web
     name: n8n
     runtime: image
-    image: n8nio/n8n:latest # Ensure no unnecessary prefixes like 'docker.io/'
+    image: n8nio/n8n:latest
     plan: free
     envVars:
       - key: N8N_PROTOCOL
         value: "https"
       - key: N8N_HOST
-        fromService:
-          type: web
-          name: ngrok-tunnel
-          envVarKey: RENDER_EXTERNAL_URL
-      - key: WEBHOOK_TUNNEL_URL
-        fromService:
-          type: web
-          name: ngrok-tunnel
-          envVarKey: RENDER_EXTERNAL_URL
+        value: "your_n8n_service_url" # Replace this with a valid URL if needed.
       - key: N8N_PORT
         value: "5678"
       - key: N8N_ENCRYPTION_KEY
