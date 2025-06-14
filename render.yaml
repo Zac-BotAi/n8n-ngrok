@@ -32,7 +32,3 @@ services:
       - key: N8N_ENCRYPTION_KEY
         generateValue: true
     healthCheckPath: /healthz
-
-databases:
-  - name: n8n-db
-    plan: free
