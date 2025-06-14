@@ -1,0 +1,11 @@
+{
+  "name": "n8n-ngrok-integration",
+  "version": "1.0.0",
+  "description": "Docker setup for n8n with ngrok tunnel",
+  "main": "index.js",
+  "scripts": {
+    "start": "echo \"This project uses Docker; no start script needed\"",
+    "test": "echo \"No tests defined\""
+  },
+  "license": "ISC"
+}
